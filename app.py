@@ -19,7 +19,11 @@ st.set_page_config(
 # ── Load pipeline ──────────────────────────────────────────
 @st.cache_resource
 def load_model():
-    return joblib.load("health_facility_pipeline.joblib")
+    try:
+        return joblib.load("health_facility_pipeline.joblib")
+    except Exception as e:
+        st.exception(e)
+        raise
 
 pipeline = load_model()
 
