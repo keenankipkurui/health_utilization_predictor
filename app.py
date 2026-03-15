@@ -18,8 +18,8 @@ def load_model():
 pipeline = load_model()
 
 # ── Feature engineering helpers (same as notebook) ─────────
-severe   = ['MALARIA','CHEST PAIN','ASTHMA','DIARRHOEA','VOMITING','HIGH FEVER','HIGH TEMP']
-moderate = ['FEVER','COUGHING','STOMACHACHE','BODY PAIN','FLU','WOUND']
+severe    = ['MALARIA','CHEST PAIN','ASTHMA','DIARRHOEA','VOMITING','HIGH FEVER','HIGH TEMP']
+moderate  = ['FEVER','COUGHING','STOMACHACHE','BODY PAIN','FLU','WOUND']
 mild_syms = ['COLDS','HEADACHE','TONSILS','TOOTHACHE','BACK PAIN']
 
 def symptom_severity(s):
@@ -52,7 +52,8 @@ sev_map = {'severe': 3, 'moderate': 2, 'mild': 1, 'other': 1, 'unknown': 1}
 NUM_COLS = [
     'wealth_quintile', 'age_numeric', 'education_score',
     'age_x_wealth', 'education_x_wealth', 'severity_x_wealth',
-    'vulnerability_index', 'num_sick_in_household'
+    'vulnerability_index', 'num_sick_in_household',
+    'severity_score'
 ]
 CAT_COLS = [
     'gender', 'marital_status', 'attended_school', 'highest_education',
@@ -77,6 +78,7 @@ def build_features(inputs: dict) -> pd.DataFrame:
     row['age_x_wealth']       = row['age_numeric']     * row['wealth_quintile']
     row['education_x_wealth'] = row['education_score'] * row['wealth_quintile']
     row['severity_x_wealth']  = sev_map.get(row['symptom_severity'], 1) * row['wealth_quintile']
+    row['severity_score']     = sev_map.get(row['symptom_severity'], 1)
 
     # Composite flags
     row['vulnerability_index'] = (
@@ -144,17 +146,17 @@ st.divider()
 
 if st.button("🔮 Predict", type="primary", use_container_width=True):
     inputs = {
-        'gender':                    gender,
-        'marital_status':            marital_status,
-        'attended_school':           attended_school,
-        'highest_education':         highest_education,
-        'wealth_quintile':           wealth_quintile,
+        'gender':                     gender,
+        'marital_status':             marital_status,
+        'attended_school':            attended_school,
+        'highest_education':          highest_education,
+        'wealth_quintile':            wealth_quintile,
         'relation_to_household_head': relation,
-        'age_group':                 age_group,
-        'occupation':                occupation,
-        'religion':                  religion,
-        'symptoms_reported':         symptoms_text or 'unknown',
-        'num_sick_in_household':     num_sick,
+        'age_group':                  age_group,
+        'occupation':                 occupation,
+        'religion':                   religion,
+        'symptoms_reported':          symptoms_text or 'unknown',
+        'num_sick_in_household':      num_sick,
     }
 
     features_df = build_features(inputs)
@@ -163,9 +165,9 @@ if st.button("🔮 Predict", type="primary", use_container_width=True):
 
     st.divider()
     if prediction == 1:
-        st.success(f"### ✅ Predicted: WILL Visit a Health Facility")
+        st.success("### ✅ Predicted: WILL Visit a Health Facility")
     else:
-        st.error(f"### ❌ Predicted: Will NOT Visit a Health Facility")
+        st.error("### ❌ Predicted: Will NOT Visit a Health Facility")
 
     st.metric(
         label="Probability of Visiting",
