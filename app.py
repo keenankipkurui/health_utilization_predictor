@@ -207,7 +207,7 @@ if st.button("🔮 Predict", type="primary", use_container_width=True):
         st.markdown(f"- {r}")
 
     with st.expander("🔍 View engineered feature values"):
-        st.dataframe(features_df.T.rename(columns={0: 'Value'}))
+        st.dataframe(features_df.T.rename(columns={0: 'Value'}).astype(str))
 
 st.divider()
 st.caption(
