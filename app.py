@@ -469,9 +469,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown('<p class="nav-label">Study Info</p>', unsafe_allow_html=True)
     st.caption(
-        "**Author:** Keenan Kibaliach\n\n"
-        "**Reg. No.:** 098952\n\n"
-        "**Supervisor:** Dr. Betsy Muriithi\n\n"
+        
         "**Dataset:** Kilifi County HH Survey\n(Dryad, 2018–2019)\n\n"
         "**Best model:** Random Forest\n\nAUC=0.664 | Recall=0.903\n(0.984 @ threshold 0.20)"
     )
