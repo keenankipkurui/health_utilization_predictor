@@ -209,6 +209,28 @@ st.markdown("""
     letter-spacing: 1.5px; color: #02C39A !important;
     margin-top: 1.2rem; margin-bottom: 0.3rem;
 }
+/* ── Sidebar nav bars ── */
+[data-testid="stSidebar"] .stRadio > div > label {
+    background-color: rgba(255,255,255,0.07) !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    transition: background 0.2s;
+}
+[data-testid="stSidebar"] .stRadio > div > label:hover {
+    background-color: rgba(2,192,154,0.25) !important;
+}
+[data-testid="stSidebar"] .stRadio > div > label:has(input:checked) {
+    background-color: #028090 !important;
+    font-weight: 700 !important;
+}
+/* Hide only the circle, not the text */
+[data-testid="stSidebar"] .stRadio > div > label > div:first-child {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -481,7 +503,7 @@ with st.sidebar:
 #  VIEW: OVERVIEW
 # ═════════════════════════════════════════════════════════════════════════════
 
-if "Overview" in view:
+if "🏠" in view:
     st.markdown('<h1 style="color:#023E4F;">🏥 Health Facility Utilisation Dashboard</h1>', unsafe_allow_html=True)
     st.markdown(
         "**Kilifi County, Kenya** · This decision-support system applies machine learning "
@@ -1096,7 +1118,7 @@ elif "Map" in view:
         if val == "Low-Moderate": return "background-color:#ECFDF5;color:#065F46"
         return ""
 
-    st.dataframe(sc_df.style.applymap(colour_risk, subset=["Risk Level"]), use_container_width=True, hide_index=True)
+    st.dataframe(sc_df.style.map(colour_risk, subset=["Risk Level"]), use_container_width=True, hide_index=True)
     st.markdown('<div class="callout-danger">🎯 <strong>Priority for intervention:</strong> Ganze (66.8%) and Magarini (69.4%) have the lowest predicted utilisation rates and highest poverty concentrations.</div>', unsafe_allow_html=True)
 
     st.markdown("#### Facility Count vs. Predicted Utilisation — Sub-County Comparison")
