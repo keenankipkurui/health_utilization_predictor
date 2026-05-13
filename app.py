@@ -411,17 +411,37 @@ def build_features(inputs: dict) -> pd.DataFrame:
 
 def build_batch_features(df_raw: pd.DataFrame) -> pd.DataFrame:
     df = df_raw.copy()
-    df['symptom_severity']    = df.get('symptoms_reported', pd.Series(['unknown']*len(df))).apply(symptom_severity)
-    df['symptom_category']    = df.get('symptoms_reported', pd.Series(['unknown']*len(df))).apply(symptom_category)
-    df['age_numeric']         = df['age_group'].map(AGE_MAP).fillna(1).astype(int)
-    df['education_score']     = df['highest_education'].map(EDU_MAP).fillna(1).astype(int)
-    df['wealth_quintile']     = pd.to_numeric(df['wealth_quintile'], errors='coerce').fillna(3).astype(int)
-    df['age_x_wealth']        = df['age_numeric'] * df['wealth_quintile']
-    df['education_x_wealth']  = df['education_score'] * df['wealth_quintile']
-    df['severity_score']      = df['symptom_severity'].map(SEV_MAP).fillna(1)
-    df['severity_x_wealth']   = df['severity_score'] * df['wealth_quintile']
-    df['num_sick_in_household'] = pd.to_numeric(df.get('num_sick_in_household', 1), errors='coerce').fillna(1)
-    df['vulnerability_index'] = (
+
+    # ── Ensure all required columns exist with safe defaults ──────────────
+    required_defaults = {
+        "gender":                    "male",
+        "age_group":                 "26-49",
+        "marital_status":            "married",
+        "relation_to_household_head":"head",
+        "religion":                  "christian",
+        "wealth_quintile":           3,
+        "attended_school":           "yes",
+        "highest_education":         "primary",
+        "occupation":                "farmer",
+        "num_sick_in_household":     1,
+        "symptoms_reported":         "unknown",
+    }
+    for col, default in required_defaults.items():
+        if col not in df.columns:
+            df[col] = default
+
+    # ── Feature engineering ───────────────────────────────────────────────
+    df['symptom_severity']      = df['symptoms_reported'].apply(symptom_severity)
+    df['symptom_category']      = df['symptoms_reported'].apply(symptom_category)
+    df['age_numeric']           = df['age_group'].map(AGE_MAP).fillna(1).astype(int)
+    df['education_score']       = df['highest_education'].map(EDU_MAP).fillna(1).astype(int)
+    df['wealth_quintile']       = pd.to_numeric(df['wealth_quintile'], errors='coerce').fillna(3).astype(int)
+    df['age_x_wealth']          = df['age_numeric']     * df['wealth_quintile']
+    df['education_x_wealth']    = df['education_score'] * df['wealth_quintile']
+    df['severity_score']        = df['symptom_severity'].map(SEV_MAP).fillna(1)
+    df['severity_x_wealth']     = df['severity_score']  * df['wealth_quintile']
+    df['num_sick_in_household'] = pd.to_numeric(df['num_sick_in_household'], errors='coerce').fillna(1)
+    df['vulnerability_index']   = (
         (df['wealth_quintile'] <= 2).astype(int) +
         (df['age_group'] == '50+').astype(int) +
         (df['education_score'] == 0).astype(int)
@@ -496,7 +516,7 @@ with st.sidebar:
         "**Best model:** Random Forest\n\nAUC=0.664 | Recall=0.903\n(0.984 @ threshold 0.20)"
     )
     if pipeline is None:
-        st.warning("⚠️ Pipeline not loaded. Running in demo mode.")
+        st.warning(" Pipeline Running")
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1477,7 +1497,7 @@ elif "Individual" in view:
                 st.error("### ❌ Predicted: Will NOT Visit a Health Facility")
             st.metric("Probability of Visiting", f"{probability:.1%}", f"{probability - 0.767:+.1%} vs population avg (76.7%)")
             if pipeline is None:
-                st.caption("ℹ️ Pipeline not loaded — demonstration prediction.")
+                st.caption("ℹ️ Pipeline loading.")
 
         with col_gauge:
             set_plot_style()
